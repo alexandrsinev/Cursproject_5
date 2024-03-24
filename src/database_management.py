@@ -1,13 +1,11 @@
 import psycopg2
+from config import *
 
 
 class BDManager:
-    conn = psycopg2.connect(
-        host='localhost',
-        database='vacancy_data',
-        user='postgres',
-        password=password
-    )
+    db_name = 'vacancies_data'
+    params = config(filename)
+    conn = psycopg2.connect(dbname=db_name, **params)
 
     @classmethod
     def get_companies_and_vacancies_count(cls):
@@ -62,10 +60,9 @@ class BDManager:
         try:
             with cls.conn:
                 with cls.conn.cursor() as cur:
-                    cur.execute('select * from vacancies')
+                    cur.execute(f"select * from vacancies where name like '%{word}%'")
                     rows = cur.fetchall()
                     for row in rows:
-                        if word in row[1].split():
-                            print(row)
+                        print(row)
         finally:
             cls.conn.close()

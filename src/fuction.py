@@ -1,6 +1,7 @@
 from src.hhruapi import GetVacansies
 from src.work_vacancies import WorkVacancies
 import psycopg2
+from config import *
 
 
 def get_company_name(vacancies_list, companies):
@@ -15,25 +16,25 @@ def get_company_name(vacancies_list, companies):
 
 def create_bd():
     # создание BD vacancy_data
-    conn = psycopg2.connect(
-        host='localhost',
-        user='postgres',
-        password=password
-    )
+    db_name = 'vacancies_data'
+    params = config(filename)
+    conn = psycopg2.connect(dbname='postgres', **params)
     conn.autocommit = True
-    with conn.cursor() as cur:
-        cur.execute("create database vacancy_data")
+    cur = conn.cursor()
+
+    cur.execute(f'DROP DATABASE IF EXISTS {db_name}')
+    cur.execute(f'CREATE DATABASE {db_name}')
+
     conn.close()
+    params.update({'dbname': db_name})
 
 
 def filling_bd(company_name_vl):
     # Создание таблицы в BD и наполнение таблицы данными о вакансиях
-    conn = psycopg2.connect(
-        host='localhost',
-        database='vacancy_data',
-        user='postgres',
-        password=password
-    )
+    db_name = 'vacancies_data'
+    params = config(filename)
+    conn = psycopg2.connect(dbname=db_name, **params)
+
     column_table = ('url varchar(100) not null, name varchar(100) not null, company_name varchar(100) not null,'
                     'city varchar(100) not null, salary int, requirement text')
     vacancies_data = []
